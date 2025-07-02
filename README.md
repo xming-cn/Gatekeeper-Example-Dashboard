@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gatekeeper Dashboard
 
-## Getting Started
+A modern web dashboard for managing Minecraft servers with real-time player monitoring, command execution, and server management features.
 
-First, run the development server:
+![Dashboard Overview](./images/dashboard.png)
 
+## Features
+
+- **JWT Authentication**
+  - Secure login system
+  - Protected routes for admin access
+  ![Login Page](./images/login.png)
+
+- **Server Management**
+  - Real-time server uptime monitoring
+  - Command execution interface with history
+  - Clean, modern UI with Tailwind CSS
+
+- **Player Management**
+  - Real-time player list with auto-refresh
+  - Detailed player information view
+  ![Player Details](./images/describe_player.png)
+  - Player actions:
+    - Send private messages
+    - Kick players with custom reason
+
+- **Authentication**
+  - Secure JWT-based authentication
+  - Protected routes and API endpoints
+
+## Prerequisites
+
+- Node.js 16 or higher
+- pnpm
+- Running Minecraft server with Gatekeeper plugin
+
+## Installation
+
+1. Clone the repository
+2. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Start the development server:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev
+```
 
-## Learn More
+The dashboard will be available at http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+Default login credentials:
+- Username: admin
+- Password: 123456
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/                   # Next.js app router pages
+├── components/           
+│   ├── auth/             # Authentication components
+│   ├── command/          # Command execution interface
+│   ├── layout/           # Layout components
+│   ├── players/          # Player management components
+│   └── server/           # Server status components
+└── lib/
+    └── api.ts            # API utilities and types
+```
 
-## Deploy on Vercel
+## API Integration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The dashboard connects to a Minecraft server running the Gatekeeper plugin. Make sure your server is running and accessible at `http://127.0.0.1:8080` (default configuration).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Technologies
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- SWR for data fetching
+- Axios for API requests
+
+## Screenshots
+
+### Run command just like in the terminal
+![Command Terminal](./images/terminal.png)
