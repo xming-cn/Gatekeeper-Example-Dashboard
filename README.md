@@ -52,10 +52,6 @@ pnpm dev
 
 The dashboard will be available at http://localhost:3000
 
-Default login credentials:
-- Username: admin
-- Password: 123456
-
 ## Project Structure
 
 ```
