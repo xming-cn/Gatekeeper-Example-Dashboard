@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .fixed-height {
+    height: 400px;
+    max-height: 400px;
+    min-height: 400px;
+  }
+}
+
 @layer base {
   :root {
     --foreground-rgb: 0, 0, 0;

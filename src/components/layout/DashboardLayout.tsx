@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getStoredToken, clearStoredToken } from '@/lib/api';
 import ServerHealth from '@/components/server/ServerHealth';
 import PlayerList from '@/components/players/PlayerList';
+import LogViewer from '@/components/logs/LogViewer';
 
 export default function DashboardLayout({
   children,
@@ -48,8 +49,14 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Command Section */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Logs Section */}
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-medium mb-4">Server Logs</h2>
+              <LogViewer />
+            </div>
+
+            {/* Command Section */}
             <div className="bg-white shadow rounded-lg p-6">
               <h2 className="text-lg font-medium mb-4">Execute Command</h2>
               {children}

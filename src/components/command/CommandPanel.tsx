@@ -26,12 +26,17 @@ export default function CommandPanel() {
       if (!token) throw new Error('Not authenticated');
       
       const result = await executeCommand(token, command);
-      setHistory(prev => [{
-        command,
-        response: result.message,
-        success: result.success,
-        timestamp: new Date()
-      }, ...prev]);
+    const historyRef = document.querySelector('.command-history');
+    setHistory(prev => [{
+      command,
+      response: result.message,
+      success: result.success,
+      timestamp: new Date()
+    }, ...prev]);
+    // Scroll the command history container to top after adding new command
+    if (historyRef) {
+      historyRef.scrollTop = 0;
+    }
       
       setCommand('');
     } catch (error) {
@@ -72,7 +77,7 @@ export default function CommandPanel() {
       {/* Command History */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Command History</h3>
-        <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-thin">
+        <div className="command-history space-y-2 h-48 min-h-[12rem] max-h-48 overflow-y-auto scrollbar-thin">
           {history.map((item, index) => (
             <div
               key={index}
