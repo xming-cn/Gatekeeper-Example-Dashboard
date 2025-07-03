@@ -39,7 +39,7 @@ export default function CommandPanel() {
     }
       
       setCommand('');
-    } catch (error) {
+    } catch {
       setHistory(prev => [{
         command,
         response: 'Failed to execute command',

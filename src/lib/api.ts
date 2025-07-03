@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://127.0.0.1:8080';
+// Get server address from localStorage or use default
+export const getServerAddress = (): string => {
+  if (typeof window === 'undefined') return '127.0.0.1:8080';
+  return localStorage.getItem('serverAddress') || '127.0.0.1:8080';
+};
+
+export const setServerAddress = (address: string): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('serverAddress', address);
+};
+
+const BASE_URL = `http://${getServerAddress()}`;
 
 export interface LoginResponse {
   token: string;

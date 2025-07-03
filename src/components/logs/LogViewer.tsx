@@ -1,13 +1,22 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getStoredToken } from '@/lib/api';
+import { getStoredToken, getServerAddress } from '@/lib/api';
+
+import { AnsiUp } from 'ansi_up';
+
+const ansi_up = new AnsiUp();
 
 // Function to remove ANSI color codes from log messages
-const stripAnsiCodes = (text: string | unknown): string => {
+const parseAnsiCodes = (text: string | unknown): string => {
   if (typeof text !== 'string') return '';
-  return text.replace(/\x1b\[\d+(;\d+)*m/g, '').replace(/\[\d+(;\d+)*m/g, '');
+  return ansi_up.ansi_to_html(text as string);
 };
+
+// const stripAnsiCodes = (text: string): string => {
+//   if (typeof text !== 'string') return '';
+//   return text.replace(/\x1b\[\d+(;\d+)*m/g, '').replace(/\[\d+(;\d+)*m/g, '');
+// }
 
 export default function LogViewer() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -26,7 +35,7 @@ export default function LogViewer() {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket('ws://127.0.0.1:8080/ws/gatekeeper/logger');
+    const ws = new WebSocket(`ws://${getServerAddress()}/ws/gatekeeper/logger`);
 
     ws.onopen = () => {
       const authData = {
@@ -47,11 +56,11 @@ export default function LogViewer() {
         }
         if (data.type === 'pong') return;
         if (typeof event.data === 'string') {
-          setLogs(prev => [...prev, stripAnsiCodes(event.data)]);
+          setLogs(prev => [...prev, parseAnsiCodes(event.data)]);
         }
-      } catch (err) {
+      } catch {
         // If parsing fails, treat it as a raw log message
-        const message = stripAnsiCodes(event.data);
+        const message = parseAnsiCodes(event.data);
         if (message.trim()) {
           setLogs(prev => [...prev, message]);
         }
@@ -137,9 +146,11 @@ export default function LogViewer() {
       <div className="bg-black text-white font-mono text-sm p-4 rounded-lg fixed-height overflow-y-auto scrollbar-thin">
       <div className="space-y-1">
         {logs.map((log, index) => (
-          <div key={index} className="whitespace-pre-wrap">
-            {log}
-          </div>
+          <div 
+            key={index} 
+            className="whitespace-pre-wrap" 
+            dangerouslySetInnerHTML={{ __html: log }}
+          />
         ))}
         <div ref={logsEndRef} />
       </div>

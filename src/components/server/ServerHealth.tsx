@@ -6,7 +6,7 @@ import { ClockIcon } from '@heroicons/react/24/outline';
 
 export default function ServerHealth() {
   const [uptime, setUptime] = useState<string>('Loading...');
-  const [error, setError] = useState<boolean>(false);
+  const [, setError] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -17,7 +17,7 @@ export default function ServerHealth() {
         const health = await getServerHealth(token);
         setUptime(formatUptime(health.uptime));
         setError(false);
-      } catch (err) {
+      } catch {
         setError(true);
         setUptime('Error');
       }

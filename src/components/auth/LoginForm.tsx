@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { login, setStoredToken } from '@/lib/api';
+import { login, setStoredToken, setServerAddress } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [serverAddr, setServerAddr] = useState('127.0.0.1:8080');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,6 +18,7 @@ export default function LoginForm() {
     setError('');
 
     try {
+      setServerAddress(serverAddr);
       const token = await login(username, password);
       setStoredToken(token);
       router.push('/dashboard');
@@ -42,9 +44,19 @@ export default function LoginForm() {
               <input
                 type="text"
                 required
+                value={serverAddr}
+                onChange={(e) => setServerAddr(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Server Address (e.g. 127.0.0.1:8080)"
+              />
+            </div>
+            <div>
+              <input
+                type="text"
+                required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Username"
               />
             </div>
