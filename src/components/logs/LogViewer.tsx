@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { getStoredToken, getServerAddress } from '@/lib/api';
-
+import SimpleCommandPanel from '@/components/command/SimpleCommandPanel';
 import { AnsiUp } from 'ansi_up';
 
 const ansi_up = new AnsiUp();
@@ -18,10 +18,19 @@ const parseAnsiCodes = (text: string | unknown): string => {
 //   return text.replace(/\x1b\[\d+(;\d+)*m/g, '').replace(/\[\d+(;\d+)*m/g, '');
 // }
 
-export default function LogViewer() {
+interface LogViewerProps {
+  onExpandChange?: (expanded: boolean) => void;
+}
+
+export default function LogViewer({ onExpandChange }: LogViewerProps) {
   const [logs, setLogs] = useState<string[]>([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    onExpandChange?.(expanded);
+  }, [expanded, onExpandChange]);
   const wsRef = useRef<WebSocket | null>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const reconnectTimeoutRef = useRef<number | undefined>(undefined);
@@ -35,7 +44,7 @@ export default function LogViewer() {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket(`ws://${getServerAddress()}/ws/gatekeeper/logger`);
+    const ws = new WebSocket(`wss://${getServerAddress()}/ws/gatekeeper/logger`);
 
     ws.onopen = () => {
       const authData = {
@@ -56,13 +65,19 @@ export default function LogViewer() {
         }
         if (data.type === 'pong') return;
         if (typeof event.data === 'string') {
-          setLogs(prev => [...prev, parseAnsiCodes(event.data)]);
+          setLogs(prev => {
+            const newLogs = [...prev, parseAnsiCodes(event.data)];
+            return newLogs.length > 400 ? newLogs.slice(-400) : newLogs;
+          });
         }
       } catch {
         // If parsing fails, treat it as a raw log message
         const message = parseAnsiCodes(event.data);
         if (message.trim()) {
-          setLogs(prev => [...prev, message]);
+          setLogs(prev => {
+            const newLogs = [...prev, message];
+            return newLogs.length > 400 ? newLogs.slice(-400) : newLogs;
+          });
         }
       }
     };
@@ -136,14 +151,29 @@ export default function LogViewer() {
   }, [logs]);
 
   return (
-  <div className="space-y-2" style={{ contain: 'paint layout' }}>
-      <div className="flex items-center gap-2">
-        <div className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
-        <span className="text-sm text-gray-600">
-          {error || (connected ? 'Connected' : 'Connecting...')}
-        </span>
+  <div className={`space-y-2 transition-all duration-200 ${
+    expanded ? 'fixed inset-0 bg-white z-50 p-4 pt-4' : ''
+  }`} style={{ contain: 'paint layout' }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <span className="text-sm text-gray-600">
+            {error || (connected ? 'Connected' : 'Connecting...')}
+          </span>
+        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          {expanded ? 'Collapse' : 'Expand'}
+        </button>
       </div>
-      <div className="bg-black text-white font-mono text-sm p-4 rounded-lg fixed-height overflow-y-auto scrollbar-thin">
+
+      <div 
+        className={`bg-black text-white font-mono text-sm p-4 rounded-lg overflow-y-auto scrollbar-thin transition-all duration-200 ${
+          expanded ? 'h-[calc(100vh-10rem)]' : 'fixed-height'
+        }`}
+      >
       <div className="space-y-1">
         {logs.map((log, index) => (
           <div 
@@ -155,6 +185,13 @@ export default function LogViewer() {
         <div ref={logsEndRef} />
       </div>
     </div>
+
+    {/* Command Panel in expanded mode - positioned below logs */}
+    {expanded && (
+      <div className="mt-4">
+        <SimpleCommandPanel />
+      </div>
+    )}
   </div>
   );
 }

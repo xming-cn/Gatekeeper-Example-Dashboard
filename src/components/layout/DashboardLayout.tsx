@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStoredToken, clearStoredToken } from '@/lib/api';
 import ServerHealth from '@/components/server/ServerHealth';
@@ -13,6 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [isLogExpanded, setIsLogExpanded] = useState(false);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -51,16 +52,18 @@ export default function DashboardLayout({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* Logs Section */}
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-white shadow-lg rounded-lg p-6">
               <h2 className="text-lg font-medium mb-4">Server Logs</h2>
-              <LogViewer />
+              <LogViewer onExpandChange={setIsLogExpanded} />
             </div>
 
             {/* Command Section */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-medium mb-4">Execute Command</h2>
-              {children}
-            </div>
+            {!isLogExpanded && (
+              <div className="bg-white shadow-lg rounded-lg p-6">
+                <h2 className="text-lg font-medium mb-4">Execute Command</h2>
+                {children}
+              </div>
+            )}
           </div>
 
           {/* Players List Section */}

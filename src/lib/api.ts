@@ -11,8 +11,6 @@ export const setServerAddress = (address: string): void => {
   localStorage.setItem('serverAddress', address);
 };
 
-const BASE_URL = `http://${getServerAddress()}`;
-
 export interface LoginResponse {
   token: string;
 }
@@ -56,12 +54,13 @@ export interface HealthResponse {
   uptime: number;
 }
 
-const api = axios.create({
-  baseURL: BASE_URL,
+// Create a new axios instance for each request with the current server address
+const getApi = () => axios.create({
+  baseURL: `https://${getServerAddress()}`
 });
 
 export const login = async (username: string, password: string): Promise<string> => {
-  const response = await api.post<LoginResponse>('/auth/login', {
+  const response = await getApi().post<LoginResponse>('/auth/login', {
     username,
     password,
   });
@@ -69,7 +68,7 @@ export const login = async (username: string, password: string): Promise<string>
 };
 
 export const executeCommand = async (token: string, command: string): Promise<CommandResponse> => {
-  const response = await api.post<CommandResponse>(
+  const response = await getApi().post<CommandResponse>(
     '/api/gatekeeper/execute-command',
     { command },
     {
@@ -80,7 +79,7 @@ export const executeCommand = async (token: string, command: string): Promise<Co
 };
 
 export const listPlayers = async (token: string): Promise<PlayersResponse> => {
-  const response = await api.get<PlayersResponse>(
+  const response = await getApi().get<PlayersResponse>(
     '/api/gatekeeper/online-players',
     {
       headers: { Authorization: `Bearer ${token}` }
@@ -106,7 +105,7 @@ export const clearStoredToken = (): void => {
 };
 
 export const getServerHealth = async (token: string): Promise<HealthResponse> => {
-  const response = await api.get<HealthResponse>(
+  const response = await getApi().get<HealthResponse>(
     '/health',
     {
       headers: { Authorization: `Bearer ${token}` }
@@ -131,7 +130,7 @@ export const formatUptime = (seconds: number): string => {
 };
 
 export const getPlayerDetails = async (token: string, playerId: string): Promise<PlayerDetails> => {
-  const response = await api.get<PlayerDetails>(
+  const response = await getApi().get<PlayerDetails>(
     `/api/gatekeeper/player/${playerId}`,
     {
       headers: { Authorization: `Bearer ${token}` }
@@ -141,7 +140,7 @@ export const getPlayerDetails = async (token: string, playerId: string): Promise
 };
 
 export const kickPlayer = async (token: string, playerId: string, reason: string): Promise<CommandResponse> => {
-  const response = await api.post<CommandResponse>(
+  const response = await getApi().post<CommandResponse>(
     `/api/gatekeeper/player/${playerId}/kick`,
     { reason },
     {
@@ -152,7 +151,7 @@ export const kickPlayer = async (token: string, playerId: string, reason: string
 };
 
 export const sendPrivateMessage = async (token: string, playerId: string, message: string): Promise<CommandResponse> => {
-  const response = await api.post<CommandResponse>(
+  const response = await getApi().post<CommandResponse>(
     `/api/gatekeeper/player/${playerId}/message`,
     { message },
     {
